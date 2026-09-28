@@ -1,5 +1,7 @@
 # pi-free-search
 
+该项目从 [dsh-free-search](https://github.com/DDDMUC/dsh-free-search) 改造而来。
+
 Pi 网页搜索扩展：13 个引擎自动回退、时间过滤、结果缓存。无需 API key 即可用 Bing / DuckDuckGo / SearXNG / AnySearch（以及若干 keyless 付费引擎）。
 
 ## 加载
@@ -92,3 +94,7 @@ npm test
 npm run test:smoke   # 真网：Bing + example.com + npm；PI_SKIP_SMOKE=1 可跳过
 npm run typecheck
 ```
+
+
+
+

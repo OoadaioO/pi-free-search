@@ -1,7 +1,6 @@
 {
   "name": "pi-free-search",
   "version": "0.1.0",
-  "private": true,
   "description": "Pi web search extension: 13 engines with automatic fallback, time filtering, and cache",
   "keywords": [
     "pi-package",
@@ -10,15 +9,17 @@
   "type": "module",
   "pi": {
     "extensions": [
-      "./src/index.ts"
+      "./dist/index.ts"
     ],
     "skills": [],
     "prompts": []
   },
   "scripts": {
+    "build":"tsc",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test test/*.test.ts",
-    "test:smoke": "tsx --test --test-timeout=30000 test/smoke/*.test.ts"
+    "test:smoke": "tsx --test --test-timeout=30000 test/smoke/*.test.ts",
+    "clean":"rm -rf dist"
   },
   "peerDependencies": {
     "@earendil-works/pi-ai": "*",
