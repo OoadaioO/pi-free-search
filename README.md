@@ -1,48 +1,87 @@
-# pi extension 开发项目
+# pi-free-search
 
-演示用 pi extension 开发脚手架,展示扩展的依赖处理规范。
+Pi 网页搜索扩展：13 个引擎自动回退、时间过滤、结果缓存。无需 API key 即可用 Bing / DuckDuckGo / SearXNG / AnySearch（以及若干 keyless 付费引擎）。
 
-## 扩展依赖处理(重要)
-
-pi 用 [jiti](https://github.com/unjs/jiti) 加载扩展,TS 无需编译即可运行。
-依赖分三类(`packages.md`):
-
-| 依赖类型 | 放哪 | 说明 |
-|----------|------|------|
-| 第三方运行时库 | `dependencies` | `npm install` 自动安装 |
-| pi 核心包 | `peerDependencies`(`*`) | `@earendil-works/pi-coding-agent`、`typebox`、`@earendil-works/pi-ai`、`@earendil-works/pi-tui` — 不打包 |
-| 其它 pi 包 | `dependencies` + `bundledDependencies` | 需打包进 tarball,用 `node_modules/` 路径引用 |
-
-> 运行时默认用生产安装(`npm install --omit=dev`),所以 `devDependencies` 在扩展运行时不可用。
-
-## 快速开始
-
-```bash
-npm install
-npm run dev      # 本地开发,tsx watch
-npm start        # 运行扩展
-npm run typecheck
-```
-
-## 加载 / 测试扩展
+## 加载
 
 ```bash
 # 一次性测试
-pi -e ./src/demo-extension/index.ts
+pi -e ./src/index.ts
 
-# pi 通过 package.json 的 "pi" manifest 指定扩展目录,代码可放在任意位置(如 src/)
-# manifest:  "pi": { "extensions": ["./src"] }
-# 放入自动发现目录后可用 /reload 热重载
-#   - 全局: ~/.pi/agent/extensions/
-#   - 项目: .pi/extensions/
+# 安装到全局（写入 ~/.pi/agent/settings.json）
+pi install /absolute/path/to/pi-free-search
 ```
 
-## 结构
+扩展入口由 `package.json` 的 `"pi.extensions": ["./src/index.ts"]` 声明。
 
-```
-src/
-└── demo-extension/
-    └── index.ts     # 扩展入口,导出默认函数
+## 工具
+
+| 工具 | 作用 |
+|---|---|
+| `web_search` | 网页搜索。走配置的首选引擎，失败自动回退。 |
+| `advanced_search` | 同上，外加 `timeRange` / `engine`。 |
+
+`timeRange` 支持：`day|week|month|year`、相对值 `12h`/`3d`/`2mo`/`1y`、绝对日期 `YYYY-MM-DD`。
+
+搜索结果对模型包在 `<untrusted-web-content>` 里，当作不可信外部数据。
+
+## 命令
+
+| 命令 | 作用 |
+|---|---|
+| `/search-engine` | 选择首选引擎并写入配置 |
+| `/search-test [engine]` | 直测指定或当前引擎，**不走回退** |
+
+## 配置
+
+`~/.pi/agent/web-search.json`（不存在则用默认，改引擎时创建）：
+
+```json
+{
+  "provider": "bing",
+  "bingMarket": "zh-CN",
+  "safeSearch": "off",
+  "cache": true,
+  "cacheTtl": 5
+}
 ```
 
-扩展导出默认工厂函数,接收 `ExtensionAPI`,可订阅事件、注册工具/命令/快捷键。
+- `provider` 默认 `bing`；非法值回退 `bing`
+- `safeSearch`：`off|moderate|strict`，作用于 bing / ddg / ddg-lite
+- `cacheTtl`：0–5 分钟；`0` 或 `cache: false` 关闭缓存。回退命中 TTL 为配置值的 1/5
+
+## 环境变量（API key）
+
+只读环境变量，不写配置文件：
+
+| 变量 | 引擎 |
+|---|---|
+| `ANYSEARCH_API_KEY` | anysearch（可选，提额） |
+| `EXA_API_KEY` | exa（可选，无 key 走 MCP） |
+| `TAVILY_API_KEY` | tavily（可选，无 key 走 keyless） |
+| `KEENABLE_API_KEY` | keenable（可选，无 key 走 MCP） |
+| `FIRECRAWL_API_KEY` | firecrawl（可选，无 key 匿名） |
+| `PARALLEL_API_KEY` | parallel（可选，无 key 走 MCP） |
+| `PERPLEXITY_API_KEY` | perplexity（必须） |
+| `SERPBASE_API_KEY` | serpbase（必须） |
+| `DEEPSEEK_API_KEY` | deepseek-official（必须） |
+
+## 引擎与回退
+
+免费：`ddg` `ddg-lite` `bing` `searxng` `anysearch`  
+付费/可选 key：`exa` `tavily` `keenable` `firecrawl` `parallel` `perplexity` `serpbase` `deepseek-official`
+
+顺序：首选 → 其他付费（exa/tavily/keenable/firecrawl/parallel 无 key 也会试）→ 剩余免费。带 `timeRange` 时把支持时间过滤的引擎排前。
+
+结果 Note 两种句式：
+
+- `Note: X does not support time filtering (timeRange=...), using Y.` — 首选被跳过，并未尝试
+- `Note: X unavailable or failed (reason), using Y.` — 首选试过但失败
+
+## 开发
+
+```bash
+npm install
+npm test
+npm run typecheck
+```

@@ -1,31 +1,37 @@
 {
-  "name": "pi-ext-test",
+  "name": "pi-free-search",
   "version": "0.1.0",
   "private": true,
-  "description": "pi extension development project",
+  "description": "Pi web search extension: 13 engines with automatic fallback, time filtering, and cache",
   "keywords": [
-    "pi-package"
+    "pi-package",
+    "web-search"
   ],
   "type": "module",
   "pi": {
     "extensions": [
-      "./src/*.ts"
+      "./src/index.ts"
     ],
     "skills": [],
     "prompts": []
   },
   "scripts": {
-    "dev": "tsx watch src/demo-extension/index.ts",
-    "start": "tsx src/demo-extension/index.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "test": "tsx --test test/*.test.ts"
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "*"
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
   },
   "devDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
     "@types/node": "^22.10.5",
     "tsx": "^4.19.2",
+    "typebox": "*",
     "typescript": "^5.7.2"
   }
 }
