@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG: SearchConfig = {
   cacheTtl: 5,
 };
 
-const BING_MARKETS = [
+export const BING_MARKETS = [
   "zh-CN",
   "zh-TW",
   "en-US",
@@ -24,7 +24,7 @@ const BING_MARKETS = [
   "ko-KR",
 ] as const;
 
-const SAFE_SEARCH: readonly SafeSearch[] = ["off", "moderate", "strict"];
+export const SAFE_SEARCH: readonly SafeSearch[] = ["off", "moderate", "strict"];
 
 export function defaultConfigPath(): string {
   return join(homedir(), ".pi", "agent", "web-search.json");

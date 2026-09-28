@@ -20,17 +20,23 @@ pi install /absolute/path/to/pi-free-search
 |---|---|
 | `web_search` | 网页搜索。走配置的首选引擎，失败自动回退。 |
 | `advanced_search` | 同上，外加 `timeRange` / `engine`。 |
+| `platform_search` | 搜 GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / Wikipedia / npm。 |
+| `web_fetch` | 抓取指定 URL 的页面正文。 |
+| `search_test` | 直测引擎（不走回退），给 agent 诊断用。 |
 
 `timeRange` 支持：`day|week|month|year`、相对值 `12h`/`3d`/`2mo`/`1y`、绝对日期 `YYYY-MM-DD`。
 
-搜索结果对模型包在 `<untrusted-web-content>` 里，当作不可信外部数据。
+搜索/抓取结果对模型包在 `<untrusted-web-content>` 里，当作不可信外部数据。
 
 ## 命令
 
 | 命令 | 作用 |
 |---|---|
 | `/search-engine` | 选择首选引擎并写入配置 |
+| `/search-config` | 设置 Bing 市场、安全搜索、缓存 TTL |
 | `/search-test [engine]` | 直测指定或当前引擎，**不走回退** |
+
+`/search-config` 也可带参数：`/search-config bingMarket en-US`、`/search-config safeSearch moderate`、`/search-config cacheTtl 3`。
 
 ## 配置
 
@@ -83,5 +89,6 @@ pi install /absolute/path/to/pi-free-search
 ```bash
 npm install
 npm test
+npm run test:smoke   # 真网：Bing + example.com + npm；PI_SKIP_SMOKE=1 可跳过
 npm run typecheck
 ```

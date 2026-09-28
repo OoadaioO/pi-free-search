@@ -17,7 +17,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test test/*.test.ts"
+    "test": "tsx --test test/*.test.ts",
+    "test:smoke": "tsx --test --test-timeout=30000 test/smoke/*.test.ts"
   },
   "peerDependencies": {
     "@earendil-works/pi-ai": "*",

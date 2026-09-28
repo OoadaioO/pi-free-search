@@ -32,7 +32,10 @@ export type SearchProviderOptions = {
 
 export type SearchProvider = {
   search: (request: SearchRequest, signal?: AbortSignal) => Promise<SearchResult>;
-  testEngine: (engine: string, query?: string, timeRange?: string, signal?: AbortSignal) => Promise<EngineTestResult>;
+  testEngine: (
+    engine: string,
+    options?: { query?: string; timeRange?: string; signal?: AbortSignal; retry?: boolean },
+  ) => Promise<EngineTestResult>;
 };
 
 export type EngineTestResult =
@@ -172,18 +175,19 @@ export function createSearchProvider(options: SearchProviderOptions): SearchProv
       throw lastError instanceof Error ? lastError : new Error("all search engines failed");
     },
 
-    async testEngine(engine, query = "DeepSeek Harness", timeRange, signal) {
+    async testEngine(engine, testOptions) {
       if (!isEngineId(engine)) return { ok: false, engine, error: `unknown engine: ${engine}` };
       const cfg = options.getConfig();
-      const parsed = parseTimeRange(timeRange);
-      const ctx = makeCtx({ query: query.trim() || "DeepSeek Harness", maxResults: 2, timeRange: parsed }, cfg, engine, signal);
+      const query = testOptions?.query?.trim() || "DeepSeek Harness";
+      const parsed = parseTimeRange(testOptions?.timeRange);
+      const ctx = makeCtx({ query, maxResults: 2, timeRange: parsed }, cfg, engine, testOptions?.signal);
       if (isKeyRequired(engine) && !ctx.apiKey) {
         return { ok: false, engine, error: `${ENGINE_KEY_ENV[engine]} not configured` };
       }
       const attempt = () => runEngine(engine, ctx);
       try {
         let result = await attempt();
-        if (result.sources.length === 0) {
+        if (result.sources.length === 0 && testOptions?.retry !== false) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
           result = await attempt();
         }

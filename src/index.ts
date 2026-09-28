@@ -16,7 +16,7 @@ export default function (pi: ExtensionAPI) {
   const getConfig = () => loadConfig();
   const provider = createSearchProvider({ getConfig });
 
-  registerSearchTools(pi, provider);
+  registerSearchTools(pi, { provider, getConfig });
   registerSearchCommands(pi, {
     getConfig,
     save: (config) => saveConfig(config),
