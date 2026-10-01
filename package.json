@@ -9,7 +9,7 @@
   "type": "module",
   "pi": {
     "extensions": [
-      "./dist/index.ts"
+      "./src/index.ts"
     ],
     "skills": [],
     "prompts": []
